@@ -1,11 +1,11 @@
 package middleware
 
 import (
-	"mygram_project/utils"
 	"net/http"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"github.com/ridhoafwani/fga-final-project/utils"
 )
 
 // AuthMiddleware is a middleware function to authenticate JWT token

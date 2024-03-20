@@ -1,10 +1,10 @@
 package handlers
 
 import (
-	"mygram_project/models"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/ridhoafwani/fga-final-project/models"
 	"gorm.io/gorm"
 )
 

@@ -1,9 +1,9 @@
 package main
 
 import (
-	"mygram_project/handlers"
-
 	"github.com/gin-gonic/gin"
+	"github.com/ridhoafwani/fga-final-project/handlers"
+	middleware "github.com/ridhoafwani/fga-final-project/middlewares"
 )
 
 func main() {
@@ -18,7 +18,7 @@ func main() {
 
 	// Photo endpoints
 	photoGroup := router.Group("/photos")
-	photoGroup.Use(handlers.AuthMiddleware())
+	photoGroup.Use(middleware.AuthMiddleware())
 	{
 		photoGroup.POST("/", handlers.CreatePhoto)
 		photoGroup.GET("/", handlers.GetPhotos)
@@ -28,7 +28,7 @@ func main() {
 
 	// Comment endpoints
 	commentGroup := router.Group("/comments")
-	commentGroup.Use(handlers.AuthMiddleware())
+	commentGroup.Use(middleware.AuthMiddleware())
 	{
 		commentGroup.POST("/", handlers.CreateComment)
 		commentGroup.GET("/", handlers.GetComments)
@@ -38,7 +38,7 @@ func main() {
 
 	// SocialMedia endpoints
 	socialMediaGroup := router.Group("/socialmedias")
-	socialMediaGroup.Use(handlers.AuthMiddleware())
+	socialMediaGroup.Use(middleware.AuthMiddleware())
 	{
 		socialMediaGroup.POST("/", handlers.CreateSocialMedia)
 		socialMediaGroup.GET("/", handlers.GetSocialMedias)

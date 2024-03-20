@@ -3,10 +3,9 @@ package handlers
 import (
 	"net/http"
 
-	"mygram_project/utils"
-
 	"github.com/gin-gonic/gin"
 	"github.com/ridhoafwani/fga-final-project/models"
+	"github.com/ridhoafwani/fga-final-project/utils"
 	"golang.org/x/crypto/bcrypt"
 )
 
