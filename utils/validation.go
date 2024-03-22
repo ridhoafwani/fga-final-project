@@ -13,7 +13,7 @@ func ValidateUser(user models.User, db *gorm.DB) error {
         return err
     }
 
-	if err := validator.New().Var(user.Email, "required, email"); err != nil {
+	if err := validator.New().Var(user.Email, "required,email"); err != nil {
         return errors.New("invalid email format")
     }
 
@@ -41,6 +41,22 @@ func ValidateUser(user models.User, db *gorm.DB) error {
     if user.Age < 9 {
         return errors.New("age must be at least 9")
     }
+
+    return nil
+}
+
+func ValidatePhoto(photo models.Photo, db *gorm.DB) error {
+    if err := validator.New().Struct(photo); err != nil {
+        return err
+    }
+
+	if err := validator.New().Var(photo.Title, "required"); err != nil {
+		return errors.New("title required")
+	}
+
+	if err := validator.New().Var(photo.PhotoURL, "required"); err != nil {
+		return errors.New("photo url required")
+	}
 
     return nil
 }
