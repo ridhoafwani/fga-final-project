@@ -72,7 +72,7 @@ func ValidateUpdateUser(user models.User, db *gorm.DB) error {
 	return nil
 }
 
-func ValidatePhoto(photo models.Photo, db *gorm.DB) error {
+func ValidateAddPhoto(photo models.Photo) error {
 	if err := validator.New().Struct(photo); err != nil {
 		return err
 	}

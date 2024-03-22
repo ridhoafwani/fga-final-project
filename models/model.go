@@ -3,26 +3,27 @@ package models
 import "time"
 
 type User struct {
-	ID        uint `gorm:"primary_key"`
-	Username  string
-	Email     string `gorm:"unique_index"`
-	Password  string
-	Age       int
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	Photos    []Photo   `gorm:"foreignkey:UserID"` // One-to-many relationship
-	Comments  []Comment `gorm:"foreignkey:UserID"` // One-to-many relationship
+	ID           uint `gorm:"primary_key"`
+	Username     string
+	Email        string `gorm:"unique_index"`
+	Password     string
+	Age          int
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+	Photos       []Photo       `gorm:"foreignkey:UserID"`
+	Comments     []Comment     `gorm:"foreignkey:UserID"`
+	SocialMedias []SocialMedia `gorm:"foreignkey:UserID"`
 }
 
 type Photo struct {
 	ID        uint `gorm:"primary_key"`
 	Title     string
 	Caption   string
-	PhotoURL  string
+	PhotoURL  string `json:"photo_url"`
 	UserID    uint
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	User      User `gorm:"foreignkey:UserID"` // Belongs-to relationship
+	Comments  []Comment `gorm:"foreignkey:PhotoID"`
 }
 
 type Comment struct {
@@ -32,8 +33,6 @@ type Comment struct {
 	Message   string
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	User      User  `gorm:"foreignkey:UserID"`  // Belongs-to relationship
-	Photo     Photo `gorm:"foreignkey:PhotoID"` // Belongs-to relationship
 }
 
 type SocialMedia struct {
@@ -43,5 +42,4 @@ type SocialMedia struct {
 	UserID         uint
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
-	User           User `gorm:"foreignkey:UserID"` // Belongs-to relationship
 }

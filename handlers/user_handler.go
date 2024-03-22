@@ -133,7 +133,7 @@ func (h UserHandler) UpdateUser(c *gin.Context) {
 	userUpdateResponse.Username = existingUser.Username
 	userUpdateResponse.Email = existingUser.Email
 	userUpdateResponse.Age = existingUser.Age
-	userUpdateResponse.UpdatedAt = existingUser.UpdatedAt.Format("2006-01-02 15:04:05")
+	userUpdateResponse.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
 
 	c.JSON(http.StatusOK, userUpdateResponse)
 }
@@ -157,5 +157,5 @@ func (h UserHandler) DeleteUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "your account has been deleted successfully"})
+	c.JSON(http.StatusOK, gin.H{"message": "your account has been successfully deleted"})
 }
