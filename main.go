@@ -9,22 +9,30 @@ import (
 	middleware "github.com/ridhoafwani/fga-final-project/middlewares"
 )
 
-func WelcomeHandler (ctx *gin.Context)  {
-		ctx.JSON(http.StatusOK, "Welcome")
-	}
+func WelcomeHandler(ctx *gin.Context) {
+	ctx.JSON(http.StatusOK, "Welcome")
+}
 
 func main() {
 	router := gin.Default()
 	db := database.DatabaseConnection()
 
-	authHandler := handlers.InitAuthHandler(db)
+	userHandler := handlers.InitUserHandler(db)
 	photoHandler := handlers.InitPhotoHandler(db)
 
 	// Auth endpoints
-	authGroup := router.Group("/auth")
+	authGroup := router.Group("/users")
 	{
-		authGroup.POST("/register", authHandler.Register)
-		authGroup.POST("/login", authHandler.Login)
+		authGroup.POST("/register", userHandler.Register)
+		authGroup.POST("/login", userHandler.Login)
+	}
+
+	// User endpoints
+	userGroup := router.Group("/users")
+	userGroup.Use(middleware.AuthMiddleware())
+	{
+		userGroup.PUT("/:id", userHandler.UpdateUser)
+		userGroup.DELETE("/:id", userHandler.DeleteUser)
 	}
 
 	// Photo endpoints
@@ -57,7 +65,7 @@ func main() {
 	// 	socialMediaGroup.DELETE("/:socialMediaId", handlers.DeleteSocialMedia)
 	// }
 
-	router.GET("", WelcomeHandler )
+	router.GET("", WelcomeHandler)
 
-	router.Run(":8000")
+	router.Run(":8001")
 }

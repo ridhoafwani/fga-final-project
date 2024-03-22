@@ -1,9 +1,9 @@
 package middleware
 
 import (
+	"fmt"
 	"net/http"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/ridhoafwani/fga-final-project/utils"
 )
@@ -12,24 +12,26 @@ import (
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenString := c.GetHeader("Authorization")
+		tokenString = tokenString[7:] // Remove "Bearer " prefix from token string
 		if tokenString == "" {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization token is required"})
 			c.Abort()
 			return
 		}
 
+		fmt.Println("Token: ", tokenString)
+
 		// Parse JWT token
-		token, err := utils.VerifyJWT(tokenString)
+		userId, err := utils.VerifyJWT(tokenString)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
 			c.Abort()
 			return
 		}
 
-		// Set user ID from JWT token in context
-		claims := token.Claims.(jwt.MapClaims)
-		userID := claims["userId"].(float64)
-		c.Set("userId", uint(userID))
+		fmt.Println("user_id", userId)
+
+		c.Set("user_id", userId)
 
 		c.Next()
 	}
