@@ -7,10 +7,19 @@ import (
 	"github.com/ridhoafwani/fga-final-project/models"
 	"github.com/ridhoafwani/fga-final-project/utils"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
+type AuthHandler struct {
+	Db *gorm.DB
+}
+
+func InitAuthHandler(db *gorm.DB) *AuthHandler {
+	return &AuthHandler{Db: db}
+}
+
 // Register handles user registration
-func Register(c *gin.Context) {
+func (h AuthHandler) Register(c *gin.Context) {
 	var user models.User
 	if err := c.ShouldBindJSON(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -26,7 +35,7 @@ func Register(c *gin.Context) {
 	user.Password = string(hashedPassword)
 
 	// Save user to the database
-	if err := models.DB.Create(&user).Error; err != nil {
+	if err := h.Db.Create(&user).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create user"})
 		return
 	}
@@ -35,7 +44,7 @@ func Register(c *gin.Context) {
 }
 
 // Login handles user login
-func Login(c *gin.Context) {
+func (h AuthHandler) Login(c *gin.Context) {
 	var loginData struct {
 		Email    string `json:"email" binding:"required"`
 		Password string `json:"password" binding:"required"`
@@ -47,7 +56,7 @@ func Login(c *gin.Context) {
 	}
 
 	var user models.User
-	if err := models.DB.Where("email = ?", loginData.Email).First(&user).Error; err != nil {
+	if err := h.Db.Where("email = ?", loginData.Email).First(&user).Error; err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid email or password"})
 		return
 	}
@@ -59,7 +68,7 @@ func Login(c *gin.Context) {
 	}
 
 	// Generate JWT token
-	token, err := utils.GenerateToken(user.ID)
+	token, err := utils.GenerateJWT(user.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to generate token"})
 		return

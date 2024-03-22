@@ -8,9 +8,16 @@ import (
 	"gorm.io/gorm"
 )
 
+type CommentHandler struct {
+	DB *gorm.DB
+}
+
+func InitCommentHandler(db *gorm.DB) *CommentHandler {
+	return &CommentHandler{DB: db}
+}
+
 // CreateComment handles creation of new comment
-func CreateComment(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
+func (h CommentHandler) CreateComment(c *gin.Context) {
 
 	// Binding JSON body into Comment struct
 	var newComment models.Comment
@@ -20,7 +27,7 @@ func CreateComment(c *gin.Context) {
 	}
 
 	// Create comment
-	if err := db.Create(&newComment).Error; err != nil {
+	if err := h.DB.Create(&newComment).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create comment"})
 		return
 	}
@@ -30,12 +37,10 @@ func CreateComment(c *gin.Context) {
 }
 
 // GetComments handles fetching all comments
-func GetComments(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
-
+func (h CommentHandler) GetComments(c *gin.Context) {
 	// Fetch all comments
 	var comments []models.Comment
-	if err := db.Find(&comments).Error; err != nil {
+	if err := h.DB.Find(&comments).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch comments"})
 		return
 	}
@@ -45,13 +50,12 @@ func GetComments(c *gin.Context) {
 }
 
 // UpdateComment handles updating an existing comment
-func UpdateComment(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
+func (h CommentHandler) UpdateComment(c *gin.Context) {
 	commentID := c.Param("commentId")
 
 	// Fetch comment by ID
 	var comment models.Comment
-	if err := db.Where("id = ?", commentID).First(&comment).Error; err != nil {
+	if err := h.DB.Where("id = ?", commentID).First(&comment).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Comment not found"})
 		return
 	}
@@ -66,14 +70,14 @@ func UpdateComment(c *gin.Context) {
 	}
 
 	// Update comment
-	db.Model(&comment).Updates(updatedComment)
+	h.DB.Model(&comment).Updates(updatedComment)
 
 	// Response with updated comment data
 	c.JSON(http.StatusOK, comment)
 }
 
 // DeleteComment handles deletion of an existing comment
-func DeleteComment(c *gin.Context) {
+func (h CommentHandler) DeleteComment(c *gin.Context) {
 	db := c.MustGet("db").(*gorm.DB)
 	commentID := c.Param("commentId")
 

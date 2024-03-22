@@ -8,10 +8,18 @@ import (
 	"net/http"
 )
 
-// CreateSocialMedia handles creation of new social media account
-func CreateSocialMedia(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
+type SocialMediaHandler struct {
+	DB *gorm.DB
+}
 
+func InitSocialMediaHandler(db *gorm.DB) *SocialMediaHandler {
+	return &SocialMediaHandler{
+		DB: db,
+	}
+}
+
+// CreateSocialMedia handles creation of new social media account
+func (h *SocialMediaHandler) CreateSocialMedia(c *gin.Context) {
 	// Binding JSON body into SocialMedia struct
 	var newSocialMedia models.SocialMedia
 	if err := c.ShouldBindJSON(&newSocialMedia); err != nil {
@@ -20,7 +28,7 @@ func CreateSocialMedia(c *gin.Context) {
 	}
 
 	// Create social media account
-	if err := db.Create(&newSocialMedia).Error; err != nil {
+	if err := h.DB.Create(&newSocialMedia).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create social media account"})
 		return
 	}
@@ -30,12 +38,10 @@ func CreateSocialMedia(c *gin.Context) {
 }
 
 // GetSocialMedias handles fetching all social media accounts
-func GetSocialMedias(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
-
+func (h *SocialMediaHandler) GetSocialMedias(c *gin.Context) {
 	// Fetch all social media accounts
 	var socialMedias []models.SocialMedia
-	if err := db.Find(&socialMedias).Error; err != nil {
+	if err := h.DB.Find(&socialMedias).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch social media accounts"})
 		return
 	}
@@ -45,13 +51,12 @@ func GetSocialMedias(c *gin.Context) {
 }
 
 // UpdateSocialMedia handles updating an existing social media account
-func UpdateSocialMedia(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
+func (h *SocialMediaHandler) UpdateSocialMedia(c *gin.Context) {
 	socialMediaID := c.Param("socialMediaId")
 
 	// Fetch social media account by ID
 	var socialMedia models.SocialMedia
-	if err := db.Where("id = ?", socialMediaID).First(&socialMedia).Error; err != nil {
+	if err := h.DB.Where("id = ?", socialMediaID).First(&socialMedia).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Social media account not found"})
 		return
 	}
@@ -66,20 +71,19 @@ func UpdateSocialMedia(c *gin.Context) {
 	}
 
 	// Update social media account
-	db.Model(&socialMedia).Updates(updatedSocialMedia)
+	h.DB.Model(&socialMedia).Updates(updatedSocialMedia)
 
 	// Response with updated social media account data
 	c.JSON(http.StatusOK, socialMedia)
 }
 
 // DeleteSocialMedia handles deletion of an existing social media account
-func DeleteSocialMedia(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
+func (h *SocialMediaHandler) DeleteSocialMedia(c *gin.Context) {
 	socialMediaID := c.Param("socialMediaId")
 
 	// Fetch social media account by ID
 	var socialMedia models.SocialMedia
-	if err := db.Where("id = ?", socialMediaID).First(&socialMedia).Error; err != nil {
+	if err := h.DB.Where("id = ?", socialMediaID).First(&socialMedia).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Social media account not found"})
 		return
 	}
@@ -87,7 +91,7 @@ func DeleteSocialMedia(c *gin.Context) {
 	// Check authorization (user can only delete their own social media account)
 
 	// Delete social media account
-	db.Delete(&socialMedia)
+	h.DB.Delete(&socialMedia)
 
 	// Response with success message
 	c.JSON(http.StatusOK, gin.H{"message": "Social media account deleted successfully"})
