@@ -1,6 +1,8 @@
 package main
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/ridhoafwani/fga-final-project/database"
 	"github.com/ridhoafwani/fga-final-project/handlers"
@@ -48,6 +50,10 @@ func main() {
 	// 	socialMediaGroup.PUT("/:socialMediaId", handlers.UpdateSocialMedia)
 	// 	socialMediaGroup.DELETE("/:socialMediaId", handlers.DeleteSocialMedia)
 	// }
+
+	router.GET("", func (ctx *gin.Context)  {
+		ctx.JSON(http.StatusOK, "Welcome")
+	})
 
 	router.Run(":8080")
 }

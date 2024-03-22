@@ -18,30 +18,37 @@ func InitAuthHandler(db *gorm.DB) *AuthHandler {
 	return &AuthHandler{Db: db}
 }
 
-// Register handles user registration
 func (h AuthHandler) Register(c *gin.Context) {
-	var user models.User
-	if err := c.ShouldBindJSON(&user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+    var user models.User
+    if err := c.ShouldBindJSON(&user); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        return
+    }
 
-	// Hash password before storing in the database
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to hash password"})
-		return
-	}
-	user.Password = string(hashedPassword)
+    // Validate user
+    if err := utils.ValidateUser(user, h.Db); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        return
+    }
 
-	// Save user to the database
-	if err := h.Db.Create(&user).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create user"})
-		return
-	}
+    // Hash password before storing in the database
+    hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to hash password"})
+        return
+    }
+    user.Password = string(hashedPassword)
 
-	c.JSON(http.StatusCreated, user)
+    // Save user to the database
+    if err := h.Db.Create(&user).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create user"})
+        return
+    }
+
+    c.JSON(http.StatusCreated, user)
 }
+
+
 
 // Login handles user login
 func (h AuthHandler) Login(c *gin.Context) {
