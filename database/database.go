@@ -9,24 +9,23 @@ import (
 )
 
 var (
-	host     string
-	port     string
-	user     string
-	password string
-	dbName   string
+	Host     string
+	Port     string
+	User     string
+	Password string
+	DbName   string
 )
 
-func setData() {
-	host = os.Getenv("DB_HOST")
-	port = os.Getenv("DB_PORT")
-	user = os.Getenv("DB_USER")
-	password = os.Getenv("DB_PASSWORD")
-	dbName = os.Getenv("DB_NAME")
+func SetData() {
+	Host = os.Getenv("DB_HOST")
+	Port = os.Getenv("DB_PORT")
+	User = os.Getenv("DB_USER")
+	Password = os.Getenv("DB_PASSWORD")
+	DbName = os.Getenv("DB_NAME")
 }
 
 func DatabaseConnection() (db *gorm.DB) {
-	setData()
-	sqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbName)
+	sqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", Host, Port, User, Password, DbName)
 
 	db, err := gorm.Open(postgres.Open(sqlInfo), &gorm.Config{})
 

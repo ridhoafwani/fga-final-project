@@ -15,15 +15,10 @@ func WelcomeHandler(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, "Welcome")
 }
 
-func init() {
-	err := godotenv.Load(".env")
-	if err != nil {
-		panic("Failed to load .env file")
-	}
-}
-
 func main() {
+	godotenv.Load()
 	router := gin.Default()
+	database.SetData()
 	db := database.DatabaseConnection()
 
 	userHandler := handlers.InitUserHandler(db)
