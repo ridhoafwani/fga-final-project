@@ -22,6 +22,7 @@ func main() {
 	db := database.DatabaseConnection()
 
 	db.AutoMigrate(&models.User{}, &models.Photo{}, &models.Comment{}, &models.SocialMedia{})
+
 	fmt.Println("Migration complete")
 
 }

@@ -10,9 +10,9 @@ type User struct {
 	Age          int
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
-	Photos       []Photo       `gorm:"foreignkey:UserID"`
-	Comments     []Comment     `gorm:"foreignkey:UserID"`
-	SocialMedias []SocialMedia `gorm:"foreignkey:UserID"`
+	Photos       []Photo       `gorm:"foreignkey:UserID,constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
+	Comments     []Comment     `gorm:"foreignkey:UserID,constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
+	SocialMedias []SocialMedia `gorm:"foreignkey:UserID,constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
 }
 
 type Photo struct {
@@ -23,7 +23,7 @@ type Photo struct {
 	UserID    uint   `json:"user_id"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	Comments  []Comment `gorm:"foreignkey:PhotoID"`
+	Comments  []Comment `gorm:"foreignkey:PhotoID,constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
 }
 
 type Comment struct {
