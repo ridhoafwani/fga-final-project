@@ -1,12 +1,12 @@
-// Package utils provides utility functions for handling JWT tokens.
-
 package utils
 
 import (
+	"os"
+
 	"github.com/dgrijalva/jwt-go"
 )
 
-var JWTKey = "secret"
+var JWTKey = os.Getenv("JWT_SECRET")
 
 // GenerateJWT generates a JWT token for the given userID.
 func GenerateJWT(userID uint) (string, error) {

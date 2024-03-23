@@ -2,8 +2,10 @@ package main
 
 import (
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	"github.com/ridhoafwani/fga-final-project/database"
 	"github.com/ridhoafwani/fga-final-project/handlers"
 	middleware "github.com/ridhoafwani/fga-final-project/middlewares"
@@ -11,6 +13,13 @@ import (
 
 func WelcomeHandler(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, "Welcome")
+}
+
+func init() {
+	err := godotenv.Load(".env")
+	if err != nil {
+		panic("Failed to load .env file")
+	}
 }
 
 func main() {
@@ -68,6 +77,6 @@ func main() {
 	}
 
 	router.GET("", WelcomeHandler)
-
-	router.Run(":8001")
+	port := os.Getenv("PORT")
+	router.Run(":" + port)
 }

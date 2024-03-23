@@ -2,33 +2,31 @@ package database
 
 import (
 	"fmt"
+	"os"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-const (
-	host     = "localhost"
-	port     = 5432
-	user     = "postgres"
-	password = "postgres"
-	dbName   = "mygram"
+var (
+	host     string
+	port     string
+	user     string
+	password string
+	dbName   string
 )
 
-func DatabaseConnection() (db *gorm.DB) {
-	sqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbName)
-
-	db, err := gorm.Open(postgres.Open(sqlInfo), &gorm.Config{})
-
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("? Connected Successfully to the Database")
-	return db
+func setData() {
+	host = os.Getenv("DB_HOST")
+	port = os.Getenv("DB_PORT")
+	user = os.Getenv("DB_USER")
+	password = os.Getenv("DB_PASSWORD")
+	dbName = os.Getenv("DB_NAME")
 }
 
-func RootDatabaseConnection() (db *gorm.DB) {
-	sqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, "postgres")
+func DatabaseConnection() (db *gorm.DB) {
+	setData()
+	sqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbName)
 
 	db, err := gorm.Open(postgres.Open(sqlInfo), &gorm.Config{})
 
