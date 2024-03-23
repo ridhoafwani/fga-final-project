@@ -58,41 +58,39 @@ func (h *SocialMediaHandler) CreateSocialMedia(c *gin.Context) {
 }
 
 func (h *SocialMediaHandler) GetSocialMedias(c *gin.Context) {
-	// Fetch all social media accounts
-	var socialMedias []models.SocialMedia
-	if err := h.DB.Find(&socialMedias).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch social media accounts"})
-		return
-	}
+    // Fetch all social media accounts with associated user details
+    var socialMedias []models.SocialMedia
+    if err := h.DB.Preload("User").Find(&socialMedias).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch social media accounts"})
+        return
+    }
 
-	// Prepare response data
-	var socialMediaResponses []models.SocialMediaResponse
-	for _, socialMedia := range socialMedias {
-		var user models.User
-		if err := h.DB.First(&user, socialMedia.UserID).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch user"})
-			return
-		}
+    var socialMediaResponses []models.SocialMediaResponse
+    for _, socialMedia := range socialMedias {
 
-		socialMediaResponse := models.SocialMediaResponse{
-			ID:             socialMedia.ID,
-			Name:           socialMedia.Name,
-			SocialMediaURL: socialMedia.SocialMediaURL,
-			UserID:         socialMedia.UserID,
-			CreatedAt:      socialMedia.CreatedAt,
-			UpdatedAt:      socialMedia.UpdatedAt,
-			User: models.UserDetail{
-				ID:       user.ID,
-				Email:    user.Email,
-				Username: user.Username,
-			},
-		}
-		socialMediaResponses = append(socialMediaResponses, socialMediaResponse)
-	}
+        if socialMedia.User.ID == 0 {
+            continue
+        }
 
-	// Response with formatted social media accounts
-	c.JSON(http.StatusOK, gin.H{"social_medias": socialMediaResponses})
+        socialMediaResponse := models.SocialMediaResponse{
+            ID:             socialMedia.ID,
+            Name:           socialMedia.Name,
+            SocialMediaURL: socialMedia.SocialMediaURL,
+            UserID:         socialMedia.UserID,
+            CreatedAt:      socialMedia.CreatedAt,
+            UpdatedAt:      socialMedia.UpdatedAt,
+            User: models.UserDetail{
+                ID:       socialMedia.User.ID,
+                Email:    socialMedia.User.Email,
+                Username: socialMedia.User.Username,
+            },
+        }
+        socialMediaResponses = append(socialMediaResponses, socialMediaResponse)
+    }
+
+    c.JSON(http.StatusOK, gin.H{"social_medias": socialMediaResponses})
 }
+
 
 // UpdateSocialMedia handles updating an existing social media account
 func (h *SocialMediaHandler) UpdateSocialMedia(c *gin.Context) {

@@ -58,43 +58,39 @@ func (h *PhotoHandler) CreatePhoto(c *gin.Context) {
 	c.JSON(http.StatusCreated, photoCreateResponse)
 }
 
-// GetPhotos handles fetching all photos
 func (h *PhotoHandler) GetPhotos(c *gin.Context) {
-	// Fetch all photos
-	var photos []models.Photo
-	if err := h.DB.Find(&photos).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch photos"})
-		return
-	}
+    // Fetch all photos
+    var photos []models.Photo
+    if err := h.DB.Preload("User").Find(&photos).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch photos"})
+        return
+    }
 
-	// Prepare response data
-	var photoResponses []models.PhotoGetsResponse
-	for _, photo := range photos {
-		var user models.User
-		if err := h.DB.First(&user, photo.UserID).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch user"})
-			return
-		}
+    // Prepare response data
+    var photoResponses []models.PhotoGetsResponse
+    for _, photo := range photos {
+		if photo.User.ID == 0 {
+            continue
+        }
+        photoResponse := models.PhotoGetsResponse{
+            ID:        photo.ID,
+            Title:     photo.Title,
+            Caption:   photo.Caption,
+            PhotoURL:  photo.PhotoURL,
+            UserID:    photo.UserID,
+            CreatedAt: photo.CreatedAt,
+            UpdatedAt: photo.UpdatedAt,
+            User: models.UserDetail{
+				ID:       photo.User.ID,
+                Email:    photo.User.Email,
+                Username: photo.User.Username,
+            },
+        }
+        photoResponses = append(photoResponses, photoResponse)
+    }
 
-		photoResponse := models.PhotoGetsResponse{
-			ID:        photo.ID,
-			Title:     photo.Title,
-			Caption:   photo.Caption,
-			PhotoURL:  photo.PhotoURL,
-			UserID:    photo.UserID,
-			CreatedAt: photo.CreatedAt,
-			UpdatedAt: photo.UpdatedAt,
-			User: models.UserDetail{
-				ID:       user.ID,
-				Email:    user.Email,
-				Username: user.Username,
-			},
-		}
-		photoResponses = append(photoResponses, photoResponse)
-	}
-
-	// Response with formatted photos
-	c.JSON(http.StatusOK, photoResponses)
+    // Response with formatted photos
+    c.JSON(http.StatusOK, photoResponses)
 }
 
 // UpdatePhoto handles updating an existing photo

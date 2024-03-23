@@ -1,45 +1,41 @@
 package models
 
-import "time"
+import "gorm.io/gorm"
 
 type User struct {
-	ID           uint `gorm:"primary_key"`
-	Username     string
-	Email        string `gorm:"unique_index"`
-	Password     string
-	Age          int
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
-	Photos       []Photo       `gorm:"foreignkey:UserID,constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
-	Comments     []Comment     `gorm:"foreignkey:UserID,constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
-	SocialMedias []SocialMedia `gorm:"foreignkey:UserID,constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
+    gorm.Model
+    Username     string
+    Email        string `gorm:"unique_index"`
+    Password     string
+    Age          int
+    Photos       []Photo       `gorm:"constraint:OnUpdate:CASCADE"`
+    Comments     []Comment     `gorm:"constraint:OnUpdate:CASCADE"`
+    SocialMedias []SocialMedia `gorm:"constraint:OnUpdate:CASCADE"`
 }
 
 type Photo struct {
-	ID        uint `gorm:"primary_key"`
-	Title     string
-	Caption   string
-	PhotoURL  string `json:"photo_url"`
-	UserID    uint   `json:"user_id"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	Comments  []Comment `gorm:"foreignkey:PhotoID,constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
+    gorm.Model
+    Title     string
+    Caption   string
+    PhotoURL  string `json:"photo_url"`
+    UserID    uint   `json:"user_id"`
+	User	User	`gorm:"foreignKey:UserID"`
+    Comments  []Comment `gorm:"constraint:OnUpdate:CASCADE"`
 }
 
 type Comment struct {
-	ID        uint `gorm:"primary_key"`
-	UserID    uint `json:"user_id"`
-	PhotoID   uint `json:"photo_id"`
-	Message   string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+    gorm.Model
+    UserID    uint `json:"user_id"`
+    PhotoID   uint `json:"photo_id"`
+	User User `gorm:"foreignKey:UserID"`
+	Photo Photo `gorm:"foreignKey:PhotoID"`
+    Message   string
 }
 
 type SocialMedia struct {
-	ID             uint `gorm:"primary_key"`
-	Name           string
-	SocialMediaURL string `json:"social_media_url"`
-	UserID         uint   `json:"user_id"`
-	CreatedAt      time.Time
-	UpdatedAt      time.Time
+    gorm.Model
+    Name           string
+    SocialMediaURL string `json:"social_media_url"`
+    UserID         uint   `json:"user_id"`
+	User	User `gorm:"foreignKey:UserID"`
 }

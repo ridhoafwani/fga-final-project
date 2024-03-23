@@ -63,54 +63,42 @@ func (h CommentHandler) CreateComment(c *gin.Context) {
 	c.JSON(http.StatusCreated, commentCreateResponse)
 }
 
-func (h CommentHandler) GetComments(c *gin.Context) {
-	// Fetch all comments
+func (h *CommentHandler) GetComments(c *gin.Context) {
+	// Fetch all comments with associated user and photo details
 	var comments []models.Comment
-	if err := h.DB.Find(&comments).Error; err != nil {
+	if err := h.DB.Preload("User").Preload("Photo").Find(&comments).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch comments"})
 		return
 	}
 
-	// Prepare response data
-	var commentResponses []models.CommentResponse
+	var response []models.CommentResponse
 	for _, comment := range comments {
-		var user models.User
-		if err := h.DB.First(&user, comment.UserID).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch user"})
-			return
-		}
-
-		var photo models.Photo
-		if err := h.DB.First(&photo, comment.PhotoID).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch photo"})
-			return
-		}
-
-		commentResponse := models.CommentResponse{
+		if comment.User.ID == 0 || comment.Photo.ID == 0{
+            continue
+        }
+		response = append(response, models.CommentResponse{
 			ID:        comment.ID,
 			Message:   comment.Message,
 			PhotoID:   comment.PhotoID,
 			UserID:    comment.UserID,
-			UpdatedAt: comment.UpdatedAt,
 			CreatedAt: comment.CreatedAt,
+			UpdatedAt: comment.UpdatedAt,
 			User: models.UserDetail{
-				ID:       user.ID,
-				Email:    user.Email,
-				Username: user.Username,
+				ID:       comment.User.ID,
+				Email:    comment.User.Email,
+				Username: comment.User.Username,
 			},
 			Photo: models.PhotoDetail{
-				ID:       photo.ID,
-				Title:    photo.Title,
-				Caption:  photo.Caption,
-				PhotoURL: photo.PhotoURL,
-				UserID:   photo.UserID,
+				ID:       comment.Photo.ID,
+				Title:    comment.Photo.Title,
+				Caption:  comment.Photo.Caption,
+				PhotoURL: comment.Photo.PhotoURL,
+				UserID:   comment.Photo.UserID,
 			},
-		}
-		commentResponses = append(commentResponses, commentResponse)
+		})
 	}
 
-	// Response with formatted comments
-	c.JSON(http.StatusOK, commentResponses)
+	c.JSON(http.StatusOK, response)
 }
 
 // UpdateComment handles updating an existing comment
