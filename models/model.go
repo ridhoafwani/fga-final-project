@@ -20,7 +20,7 @@ type Photo struct {
 	Title     string
 	Caption   string
 	PhotoURL  string `json:"photo_url"`
-	UserID    uint
+	UserID    uint   `json:"user_id"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	Comments  []Comment `gorm:"foreignkey:PhotoID"`
@@ -28,8 +28,8 @@ type Photo struct {
 
 type Comment struct {
 	ID        uint `gorm:"primary_key"`
-	UserID    uint
-	PhotoID   uint
+	UserID    uint `json:"user_id"`
+	PhotoID   uint `json:"photo_id"`
 	Message   string
 	CreatedAt time.Time
 	UpdatedAt time.Time
@@ -38,8 +38,8 @@ type Comment struct {
 type SocialMedia struct {
 	ID             uint `gorm:"primary_key"`
 	Name           string
-	SocialMediaURL string
-	UserID         uint
+	SocialMediaURL string `json:"social_media_url"`
+	UserID         uint   `json:"user_id"`
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
 }

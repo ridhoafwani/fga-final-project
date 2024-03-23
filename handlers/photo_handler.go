@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -29,15 +28,13 @@ func (h *PhotoHandler) CreatePhoto(c *gin.Context) {
 		return
 	}
 
-	fmt.Println(photo)
-
 	// Get user id
 	authenticatedUserId, _ := c.Get("user_id")
 	userId := authenticatedUserId.(uint)
 	photo.UserID = userId
 
 	// Validate photo data
-	if err := utils.ValidateAddPhoto(photo); err != nil {
+	if err := utils.ValidateCreatePhoto(photo); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -88,6 +85,7 @@ func (h *PhotoHandler) GetPhotos(c *gin.Context) {
 			CreatedAt: photo.CreatedAt,
 			UpdatedAt: photo.UpdatedAt,
 			User: models.UserDetail{
+				ID:       user.ID,
 				Email:    user.Email,
 				Username: user.Username,
 			},
@@ -119,6 +117,11 @@ func (h *PhotoHandler) UpdatePhoto(c *gin.Context) {
 	// Binding JSON body into updated photo struct
 	var updatedPhoto models.Photo
 	if err := c.ShouldBindJSON(&updatedPhoto); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := utils.ValidateCreatePhoto(updatedPhoto); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}

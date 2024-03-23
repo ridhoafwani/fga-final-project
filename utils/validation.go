@@ -72,7 +72,7 @@ func ValidateUpdateUser(user models.User, db *gorm.DB) error {
 	return nil
 }
 
-func ValidateAddPhoto(photo models.Photo) error {
+func ValidateCreatePhoto(photo models.Photo) error {
 	if err := validator.New().Struct(photo); err != nil {
 		return err
 	}
@@ -83,6 +83,34 @@ func ValidateAddPhoto(photo models.Photo) error {
 
 	if err := validator.New().Var(photo.PhotoURL, "required"); err != nil {
 		return errors.New("photo url required")
+	}
+
+	return nil
+}
+
+func ValidateCreateComment(comment models.Comment) error {
+	if err := validator.New().Struct(comment); err != nil {
+		return err
+	}
+
+	if err := validator.New().Var(comment.Message, "required"); err != nil {
+		return errors.New("message required")
+	}
+
+	return nil
+}
+
+func ValidateCreateSocialMedia(socialMedia models.SocialMedia) error {
+	if err := validator.New().Struct(socialMedia); err != nil {
+		return err
+	}
+
+	if err := validator.New().Var(socialMedia.Name, "required"); err != nil {
+		return errors.New("name required")
+	}
+
+	if err := validator.New().Var(socialMedia.SocialMediaURL, "required"); err != nil {
+		return errors.New("social media url required")
 	}
 
 	return nil

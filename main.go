@@ -19,6 +19,8 @@ func main() {
 
 	userHandler := handlers.InitUserHandler(db)
 	photoHandler := handlers.InitPhotoHandler(db)
+	commentHandler := handlers.InitCommentHandler(db)
+	socialMediaHandler := handlers.InitSocialMediaHandler(db)
 
 	// Auth endpoints
 	authGroup := router.Group("/users")
@@ -41,29 +43,29 @@ func main() {
 	{
 		photoGroup.POST("/", photoHandler.CreatePhoto)
 		photoGroup.GET("/", photoHandler.GetPhotos)
-		photoGroup.PUT("/:photoId", photoHandler.UpdatePhoto)
-		photoGroup.DELETE("/:photoId", photoHandler.DeletePhoto)
+		photoGroup.PUT("/:id", photoHandler.UpdatePhoto)
+		photoGroup.DELETE("/:id", photoHandler.DeletePhoto)
 	}
 
-	// // Comment endpoints
-	// commentGroup := router.Group("/comments")
-	// commentGroup.Use(middleware.AuthMiddleware())
-	// {
-	// 	commentGroup.POST("/", handlers.CreateComment)
-	// 	commentGroup.GET("/", handlers.GetComments)
-	// 	commentGroup.PUT("/:commentId", handlers.UpdateComment)
-	// 	commentGroup.DELETE("/:commentId", handlers.DeleteComment)
-	// }
+	// Comment endpoints
+	commentGroup := router.Group("/comments")
+	commentGroup.Use(middleware.AuthMiddleware())
+	{
+		commentGroup.POST("/", commentHandler.CreateComment)
+		commentGroup.GET("/", commentHandler.GetComments)
+		commentGroup.PUT("/:id", commentHandler.UpdateComment)
+		commentGroup.DELETE("/:id", commentHandler.DeleteComment)
+	}
 
-	// // SocialMedia endpoints
-	// socialMediaGroup := router.Group("/socialmedias")
-	// socialMediaGroup.Use(middleware.AuthMiddleware())
-	// {
-	// 	socialMediaGroup.POST("/", handlers.CreateSocialMedia)
-	// 	socialMediaGroup.GET("/", handlers.GetSocialMedias)
-	// 	socialMediaGroup.PUT("/:socialMediaId", handlers.UpdateSocialMedia)
-	// 	socialMediaGroup.DELETE("/:socialMediaId", handlers.DeleteSocialMedia)
-	// }
+	// SocialMedia endpoints
+	socialMediaGroup := router.Group("/socialmedias")
+	socialMediaGroup.Use(middleware.AuthMiddleware())
+	{
+		socialMediaGroup.POST("/", socialMediaHandler.CreateSocialMedia)
+		socialMediaGroup.GET("/", socialMediaHandler.GetSocialMedias)
+		socialMediaGroup.PUT("/:id", socialMediaHandler.UpdateSocialMedia)
+		socialMediaGroup.DELETE("/:id", socialMediaHandler.DeleteSocialMedia)
+	}
 
 	router.GET("", WelcomeHandler)
 
